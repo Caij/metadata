@@ -28,3 +28,16 @@ test {
 }
 
 
+java {
+    withSourcesJar()
+//    withJavadocJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
