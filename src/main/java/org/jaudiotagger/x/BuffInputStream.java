@@ -12,7 +12,7 @@ public class BuffInputStream {
     private static final int TRANSFER_SIZE = 8192;
     private final long size;
     private final InputStream in;
-    private byte[] data = new byte[TRANSFER_SIZE];
+    private byte[] data;
     private final byte[] skipBuffer = new byte[TRANSFER_SIZE];
 
     private long position;
@@ -20,6 +20,7 @@ public class BuffInputStream {
     public BuffInputStream(long size, InputStream in) {
         this.size = size;
         this.in = in;
+        this.data = new byte[(int) size];
     }
 
     public synchronized int readProxy(long currentPosition, byte b[], int off, int len) throws IOException {
