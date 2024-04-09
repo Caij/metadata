@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * the .mp3 suffix so this library attempts to supports all these formats.
  */
 public class MP3AudioHeader implements AudioHeader {
-    protected MPEGFrameHeader mp3FrameHeader;
+    public MPEGFrameHeader mp3FrameHeader;
     protected XingFrame mp3XingFrame;
     protected VbriFrame mp3VbriFrame;
 
@@ -556,7 +556,7 @@ public class MP3AudioHeader implements AudioHeader {
      *
      * @param startByte
      */
-    protected void setMp3StartByte(final long startByte) {
+    public void setMp3StartByte(final long startByte) {
         this.startByte = startByte;
     }
 

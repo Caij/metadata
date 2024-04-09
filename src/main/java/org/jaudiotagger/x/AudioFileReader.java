@@ -79,7 +79,7 @@ public abstract class AudioFileReader {
      * @param f The file to read
      * @exception CannotReadException If anything went bad during the read of this file
      */
-    public AudioFile read(ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+    public XAudioFile read(ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
         if (f.size() <= MINIMUM_SIZE_FOR_VALID_AUDIO_FILE) {
             throw new CannotReadException();
         }
@@ -90,7 +90,7 @@ public abstract class AudioFileReader {
             GenericAudioHeader info = getEncodingInfo(slideBufferFileChannel);
             slideBufferFileChannel.position(0);
             Tag tag = getTag(slideBufferFileChannel);
-            return new AudioFile(new File(""), info, tag);
+            return new XAudioFile(info, tag);
 
         } catch (CannotReadException cre) {
             throw cre;

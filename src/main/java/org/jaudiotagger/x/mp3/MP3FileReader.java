@@ -9,6 +9,7 @@ import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.x.AudioFileReader;
+import org.jaudiotagger.x.XAudioFile;
 import org.jaudiotagger.x.stream.ChannelCompat;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
@@ -35,11 +36,11 @@ public class MP3FileReader extends AudioFileReader {
      * @return
      */
     //Override because we read mp3s differently to the entagged code
-    public AudioFile read(ChannelCompat f) throws IOException, TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException {
+    public XAudioFile read(ChannelCompat f) throws IOException, TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException {
         SlideBufferFileChannel slideBufferFileChannel = null;
         try {
             slideBufferFileChannel = f.newFileChannel();
-            MP3File mp3File = new MP3File(slideBufferFileChannel, MP3File.LOAD_IDV1TAG | MP3File.LOAD_IDV2TAG, true);
+            XMP3File mp3File = new XMP3File(slideBufferFileChannel, MP3File.LOAD_IDV1TAG | MP3File.LOAD_IDV2TAG, true);
             return mp3File;
         } finally {
             if (slideBufferFileChannel != null) slideBufferFileChannel.close();

@@ -35,6 +35,7 @@ import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.asf.AsfTag;
 import org.jaudiotagger.x.AudioFileReader;
 import org.jaudiotagger.x.ID3V2TagUtil;
+import org.jaudiotagger.x.XAudioFile;
 import org.jaudiotagger.x.stream.ChannelCompat;
 import org.jaudiotagger.x.stream.FileChannelFileInputstream;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
@@ -194,7 +195,7 @@ public class AsfFileReader extends AudioFileReader {
      * {@inheritDoc}
      */
     @Override
-    public AudioFile read(final ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+    public XAudioFile read(final ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
         SlideBufferFileChannel fc = null;
         try {
             fc = f.newFileChannel();
@@ -212,7 +213,7 @@ public class AsfFileReader extends AudioFileReader {
                 logger.warning(ErrorMessage.ASF_FILE_HEADER_SIZE_DOES_NOT_MATCH_FILE_SIZE.getMsg(header.getFileHeader().getFileSize().longValue(), f.size()));
             }
 
-            return new AudioFile(new File(""), getAudioHeader(header), getTag(header));
+            return new XAudioFile(getAudioHeader(header), getTag(header));
 
         } catch (final CannotReadException e) {
             throw e;

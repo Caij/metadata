@@ -9,6 +9,7 @@ import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.x.AudioFileReader;
+import org.jaudiotagger.x.XAudioFile;
 import org.jaudiotagger.x.stream.ChannelCompat;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 import org.jaudiotagger.x.stream.SlideBufferInputStream;
@@ -25,14 +26,14 @@ public abstract class AudioFileReader2 extends AudioFileReader {
 
 
     @Override
-    public AudioFile read(ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+    public XAudioFile read(ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
         SlideBufferFileChannel channel = null;
         try {
             channel = f.newFileChannel();
             GenericAudioHeader info = getEncodingInfoV2(channel);
             channel.position(0);
             Tag tag = getTagV2(channel);
-            return new AudioFile(new File(""), info, tag);
+            return new XAudioFile(info, tag);
         } catch (IllegalArgumentException e) {
             logger.warning(ErrorMessage.GENERAL_READ_FAILED_DO_NOT_HAVE_PERMISSION_TO_READ_FILE.getMsg(f));
             throw new CannotReadException(ErrorMessage.GENERAL_READ_FAILED_DO_NOT_HAVE_PERMISSION_TO_READ_FILE.getMsg(f));
