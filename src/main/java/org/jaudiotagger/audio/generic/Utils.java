@@ -21,6 +21,7 @@ package org.jaudiotagger.audio.generic;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.tag.id3.valuepair.TextEncoding;
 import org.jaudiotagger.utils.FileTypeUtil;
+import org.jaudiotagger.x.CharsetDetectorUtil;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -248,6 +249,11 @@ public class Utils {
         final byte[] b = new byte[length];
         buffer.position(buffer.position() + offset);
         buffer.get(b);
+        Charset detectedCharset = CharsetDetectorUtil.detected(b, 0, length);
+
+        if (detectedCharset != null) {
+            return new String(b, 0, length, detectedCharset);
+        }
         return new String(b, 0, length, encoding);
     }
 

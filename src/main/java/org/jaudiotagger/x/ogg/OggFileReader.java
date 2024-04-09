@@ -16,26 +16,36 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.jaudiotagger.x.mp4;
+package org.jaudiotagger.x.ogg;
 
-import org.jaudiotagger.x.stream.ChannelCompat;
-import org.jaudiotagger.x.stream.SlideBufferFileChannel;
-import org.jaudiotagger.x.stream.SlideBufferInputStream;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.generic.GenericAudioHeader;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.x.AudioFileReader;
+import org.jaudiotagger.x.stream.ChannelCompat;
+import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.logging.Logger;
 
 /**
- * Mp4 File Reader
- *
- * <p>This can read files containing either the .mp4 or .m4a suffixes
+ * Read Ogg File Tag and Encoding information
+ * <p>
+ * Only implemented for ogg files containing a vorbis stream with vorbis comments
  */
-public class Mp4FileReader extends AudioFileReader {
-    private Mp4InfoReader ir = new Mp4InfoReader();
-    private Mp4TagReader tr = new Mp4TagReader();
+public class OggFileReader extends AudioFileReader {
+    // Logger Object
+    public static Logger logger = Logger.getLogger("org.jaudiotagger.audio.ogg");
+
+    private OggInfoReader ir;
+    private OggVorbisTagReader vtr;
+
+    public OggFileReader() {
+        ir = new OggInfoReader();
+        vtr = new OggVorbisTagReader();
+    }
 
     @Override
     protected GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) throws CannotReadException, IOException {
@@ -44,6 +54,8 @@ public class Mp4FileReader extends AudioFileReader {
 
     @Override
     protected Tag getTag(SlideBufferFileChannel raf) throws CannotReadException, IOException {
-        return tr.read(raf);
+        return vtr.read(raf);
     }
+
 }
+

@@ -30,6 +30,9 @@ import org.jaudiotagger.tag.TagNotFoundException;
 import org.jaudiotagger.tag.TagOptionSingleton;
 import org.jaudiotagger.tag.id3.*;
 import org.jaudiotagger.tag.lyrics3.AbstractLyrics3;
+import org.jaudiotagger.x.ID3V2TagUtil;
+import org.jaudiotagger.x.stream.ChannelCompat;
+import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -145,6 +148,25 @@ public class MP3File extends AudioFile {
         }
     }
 
+    private void readV1Tag(FileChannel fc, int loadOptions) throws IOException {
+        if ((loadOptions & LOAD_IDV1TAG) != 0) {
+            logger.finer("Attempting to read id3v1tags");
+            try {
+                id3v1tag = ID3V2TagUtil.createID3v11Tag(fc);
+            } catch (TagNotFoundException ex) {
+                logger.config("No ids3v11 tag found");
+            }
+
+            try {
+                if (id3v1tag == null) {
+                    id3v1tag = ID3V2TagUtil.createID3v1Tag(fc);
+                }
+            } catch (TagNotFoundException ex) {
+                logger.config("No id3v1 tag found");
+            }
+        }
+    }
+
     /**
      * Read V2tag if exists
      *
@@ -202,6 +224,77 @@ public class MP3File extends AudioFile {
                     try {
                         if (id3v2tag == null) {
                             this.setID3v2Tag(new ID3v22Tag(bb, file.getName()));
+                        }
+                    } catch (TagNotFoundException ex) {
+                        logger.config("No id3v22 tag found");
+                    }
+                }
+            } finally {
+                //Workaround for 4724038 on Windows
+                bb.clear();
+                if (bb.isDirect() && !TagOptionSingleton.getInstance().isAndroid()) {
+                    // Reflection substitute for following code:
+                    //    ((sun.nio.ch.DirectBuffer) bb).cleaner().clean();
+                    // which causes exception on Android - Sun NIO classes are not available
+                    try {
+                        Class<?> clazz = Class.forName("sun.nio.ch.DirectBuffer");
+                        Method cleanerMethod = clazz.getMethod("cleaner");
+                        Object cleaner = cleanerMethod.invoke(bb);  // cleaner = bb.cleaner()
+                        if (cleaner != null) {
+                            Method cleanMethod = cleaner.getClass().getMethod("clean");
+                            cleanMethod.invoke(cleaner);   // cleaner.clean()
+                        }
+                    } catch (ClassNotFoundException e) {
+                        logger.severe("Could not load sun.nio.ch.DirectBuffer.");
+                    } catch (NoSuchMethodException e) {
+                        logger.severe("Could not invoke DirectBuffer method - " + e.getMessage());
+                    } catch (InvocationTargetException e) {
+                        logger.severe("Could not invoke DirectBuffer method - target exception");
+                    } catch (IllegalAccessException e) {
+                        logger.severe("Could not invoke DirectBuffer method - illegal access");
+                    }
+                }
+            }
+        } else {
+            logger.config("Not enough room for valid id3v2 tag:" + startByte);
+        }
+    }
+
+
+    private void readV2Tag(FileChannel fc, int loadOptions, int startByte) throws IOException, TagException {
+        //We know where the actual Audio starts so load all the file from start to that point into
+        //a buffer then we can read the IDv2 information without needing any more File I/O
+        if (startByte >= AbstractID3v2Tag.TAG_HEADER_LENGTH) {
+            logger.finer("Attempting to read id3v2tags");
+            ByteBuffer bb;
+            bb = ByteBuffer.allocate(startByte);
+            // XXX: don't change it to map
+            // https://stackoverflow.com/questions/28378713/bytebuffer-getbyte-int-int-failed-on-android-ics-and-jb
+            fc.position(0);
+            fc.read(bb);
+
+            try {
+                bb.rewind();
+
+                if ((loadOptions & LOAD_IDV2TAG) != 0) {
+                    logger.config("Attempting to read id3v2tags");
+                    try {
+                        this.setID3v2Tag(new ID3v24Tag(bb));
+                    } catch (TagNotFoundException ex) {
+                        logger.config("No id3v24 tag found");
+                    }
+
+                    try {
+                        if (id3v2tag == null) {
+                            this.setID3v2Tag(new ID3v23Tag(bb));
+                        }
+                    } catch (TagNotFoundException ex) {
+                        logger.config("No id3v23 tag found");
+                    }
+
+                    try {
+                        if (id3v2tag == null) {
+                            this.setID3v2Tag(new ID3v22Tag(bb));
                         }
                     } catch (TagNotFoundException ex) {
                         logger.config("No id3v22 tag found");
@@ -436,6 +529,35 @@ public class MP3File extends AudioFile {
             if (newFile != null) {
                 newFile.close();
             }
+        }
+    }
+
+    public MP3File(SlideBufferFileChannel fc, int loadOptions, boolean readOnly) throws IOException, TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException {
+        //Read ID3v2 tag size (if tag exists) to allow audioHeader parsing to skip over tag
+        long tagSizeReportedByHeader = ID3V2TagUtil.getV2TagSizeIfExists(fc);
+        logger.config("TagHeaderSize:" + Hex.asHex(tagSizeReportedByHeader));
+        audioHeader =  ID3V2TagUtil.MP3AudioHeader(fc, tagSizeReportedByHeader);
+
+        //If the audio header is not straight after the end of the tag then search from start of file
+        if (tagSizeReportedByHeader != ((MP3AudioHeader) audioHeader).getMp3StartByte()) {
+            logger.config("First header found after tag:" + audioHeader);
+            audioHeader = checkAudioStart(tagSizeReportedByHeader, (MP3AudioHeader) audioHeader);
+        }
+
+        //Read v1 tags (if any)
+        readV1Tag(fc, loadOptions);
+
+        //Read v2 tags (if any)
+        readV2Tag(fc, loadOptions, (int) ((MP3AudioHeader) audioHeader).getMp3StartByte());
+
+        //If we have a v2 tag use that, if we do not but have v1 tag use that
+        //otherwise use nothing
+        //TODO:if have both should we merge
+        //rather than just returning specific ID3v22 tag, would it be better to return v24 version ?
+        if (this.getID3v2Tag() != null) {
+            tag = this.getID3v2Tag();
+        } else if (id3v1tag != null) {
+            tag = id3v1tag;
         }
     }
 

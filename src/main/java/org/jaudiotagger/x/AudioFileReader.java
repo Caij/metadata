@@ -25,6 +25,9 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.audio.generic.GenericAudioHeader;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.x.stream.ChannelCompat;
+import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.SlideBufferInputStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +59,7 @@ public abstract class AudioFileReader {
      * @exception IOException is thrown when the RandomAccessFile operations throw it (you should never throw them manually)
      * @exception CannotReadException when an error occured during the parsing of the encoding infos
      */
-    protected abstract GenericAudioHeader getEncodingInfo(BuffInputStream raf) throws CannotReadException, IOException;
+    protected abstract GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) throws CannotReadException, IOException;
 
 
     /*
@@ -66,7 +69,7 @@ public abstract class AudioFileReader {
      * @exception IOException is thrown when the RandomAccessFile operations throw it (you should never throw them manually)
      * @exception CannotReadException when an error occured during the parsing of the tag
      */
-    protected abstract Tag getTag(BuffInputStream raf) throws CannotReadException, IOException;
+    protected abstract Tag getTag(SlideBufferFileChannel raf) throws CannotReadException, IOException;
 
     /*
      * Reads the given file, and return an AudioFile object containing the Tag
@@ -76,14 +79,17 @@ public abstract class AudioFileReader {
      * @param f The file to read
      * @exception CannotReadException If anything went bad during the read of this file
      */
-    public AudioFile read(BuffInputStream f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
+    public AudioFile read(ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
         if (f.size() <= MINIMUM_SIZE_FOR_VALID_AUDIO_FILE) {
             throw new CannotReadException();
         }
 
+        SlideBufferFileChannel slideBufferFileChannel = null;
         try {
-            GenericAudioHeader info = getEncodingInfo(f);
-            Tag tag = getTag(f);
+            slideBufferFileChannel = f.newFileChannel();
+            GenericAudioHeader info = getEncodingInfo(slideBufferFileChannel);
+            slideBufferFileChannel.position(0);
+            Tag tag = getTag(slideBufferFileChannel);
             return new AudioFile(new File(""), info, tag);
 
         } catch (CannotReadException cre) {
@@ -91,7 +97,7 @@ public abstract class AudioFileReader {
         } catch (Exception e) {
             throw new CannotReadException(e);
         } finally {
-
+            if (slideBufferFileChannel != null) slideBufferFileChannel.close();
         }
     }
 }

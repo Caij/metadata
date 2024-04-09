@@ -51,12 +51,12 @@ public class AsfHeaderReader extends ChunkContainerReader<AsfHeader> {
      * ASF reader configured to just extract information about audio streams.<br>
      * If the ASF file only contains one audio stream it works fine.<br>
      */
-    private final static AsfHeaderReader INFO_READER;
+    public final static AsfHeaderReader INFO_READER;
 
     /**
      * ASF reader configured to just extract metadata information.<br>
      */
-    private final static AsfHeaderReader TAG_READER;
+    public final static AsfHeaderReader TAG_READER;
 
     static {
         final List<Class<? extends ChunkReader>> readers = new ArrayList<Class<? extends ChunkReader>>();

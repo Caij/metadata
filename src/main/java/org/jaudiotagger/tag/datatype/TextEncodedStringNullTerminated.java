@@ -4,6 +4,7 @@ import org.jaudiotagger.tag.InvalidDataTypeException;
 import org.jaudiotagger.tag.TagOptionSingleton;
 import org.jaudiotagger.tag.id3.AbstractTagFrameBody;
 import org.jaudiotagger.tag.id3.valuepair.TextEncoding;
+import org.jaudiotagger.x.CharsetDetectorUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -152,7 +153,9 @@ public class TextEncodedStringNullTerminated extends AbstractString {
             ByteBuffer inBuffer = ByteBuffer.wrap(arr, offset, bufferSize).slice();
             CharBuffer outBuffer = CharBuffer.allocate(bufferSize);
 
-            final CharsetDecoder decoder = getCorrectDecoder(inBuffer);
+            Charset detectedCharset = CharsetDetectorUtil.detected(arr, offset, bufferSize);
+
+            final CharsetDecoder decoder = getCorrectDecoder(inBuffer, detectedCharset);
             CoderResult coderResult = decoder.decode(inBuffer, outBuffer, true);
             if (coderResult.isError()) {
                 logger.warning("Problem decoding text encoded null terminated string:" + coderResult.toString());

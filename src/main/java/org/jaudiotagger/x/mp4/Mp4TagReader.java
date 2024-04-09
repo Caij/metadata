@@ -24,12 +24,13 @@ import org.jaudiotagger.tag.id3.valuepair.TextEncoding;
 import org.jaudiotagger.tag.mp4.Mp4FieldKey;
 import org.jaudiotagger.tag.mp4.Mp4Tag;
 import org.jaudiotagger.tag.mp4.field.*;
-import org.jaudiotagger.x.BuffInputStream;
+import org.jaudiotagger.x.stream.ChannelCompat;
+import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.SlideBufferInputStream;
 import org.jcodec.containers.mp4.MP4Util;
 import org.jcodec.containers.mp4.boxes.*;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -74,8 +75,8 @@ public class Mp4TagReader {
     // Logger Object
     public static Logger logger = Logger.getLogger("org.jaudiotagger.tag.mp4");
 
-    public Mp4Tag read(BuffInputStream raf) throws CannotReadException, IOException {
-        MP4Util.Movie mp4 = MP4Util.parseFullMovieChannel(raf.newFileChannel());
+    public Mp4Tag read(SlideBufferFileChannel fc) throws CannotReadException, IOException {
+        MP4Util.Movie mp4 = MP4Util.parseFullMovieChannel(fc);
         Mp4Tag tag = new Mp4Tag();
 
         //Get to the facts everything we are interested in is within the moov box, so just load data from file
