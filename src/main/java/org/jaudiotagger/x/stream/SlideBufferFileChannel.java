@@ -35,20 +35,33 @@ public class SlideBufferFileChannel extends FileChannel {
         initStream();
 
         int len = dst.remaining();
-        int totalRead = 0;
-        int bytesRead = 0;
+        int n = 0;
         try {
             begin();
             if (buf.length < len)
                 buf = new byte[len];
-            bytesRead = readProxy(buf, 0, len);
-            if (bytesRead > 0) {
-                dst.put(buf, 0, bytesRead);
+            do {
+                int count = this.read(buf,  n, len - n);
+                if (count < 0)
+                    break;
+                n += count;
+            } while (n < len);
+            if (n > 0) {
+                dst.put(buf, 0, n);
             }
         } finally {
-            end(bytesRead > 0);
+            end(n > 0);
         }
-        return totalRead;
+        return n;
+    }
+
+    @Override
+    public int read(ByteBuffer dst, long position) throws IOException {
+        long old = position;
+        position(position);
+        int read = read(dst);
+        position(old);
+        return read;
     }
 
     public int read(byte[] dst) throws IOException {
@@ -186,15 +199,6 @@ public class SlideBufferFileChannel extends FileChannel {
     @Override
     public long transferFrom(ReadableByteChannel src, long position, long count) throws IOException {
         throw new IllegalStateException();
-    }
-
-    @Override
-    public int read(ByteBuffer dst, long position) throws IOException {
-        long old = position;
-        position(position);
-        int read = read(dst);
-        position(old);
-        return read;
     }
 
     @Override

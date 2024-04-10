@@ -20,6 +20,7 @@ package org.jaudiotagger.tag.vorbiscomment;
 
 import org.jaudiotagger.tag.TagField;
 import org.jaudiotagger.tag.TagTextField;
+import org.jaudiotagger.x.CharsetDetectorUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -67,7 +68,11 @@ public class VorbisCommentTagField implements TagTextField {
      * @throws UnsupportedEncodingException If the data doesn't conform "UTF-8" specification.
      */
     public VorbisCommentTagField(byte[] raw) throws UnsupportedEncodingException {
-        String field = new String(raw, StandardCharsets.UTF_8);
+        Charset charset = CharsetDetectorUtil.detected(raw);
+        if (charset == null) {
+            charset = StandardCharsets.UTF_8;
+        }
+        String field = new String(raw, charset);
         int i = field.indexOf("=");
         if (i == -1) {
             //Beware that ogg ID, must be capitalized and contain no space..
