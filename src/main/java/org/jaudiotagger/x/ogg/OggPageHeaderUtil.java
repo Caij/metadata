@@ -4,22 +4,24 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.ogg.util.OggPageHeader;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
+import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 public class OggPageHeaderUtil {
 
 
-    public static OggPageHeader read(SlideBufferFileChannel raf) throws IOException, CannotReadException {
+    public static OggPageHeader read(FileChannelFileInputstreamV2 raf) throws IOException, CannotReadException {
         long start = raf.position();
 
         byte[] b = new byte[OggPageHeader.CAPTURE_PATTERN.length];
         raf.read(b);
         if (!(Arrays.equals(b, OggPageHeader.CAPTURE_PATTERN))) {
             raf.position(start);
-            if (AbstractID3v2Tag.isId3Tag(raf)) {
+            if (AbstractID3v2Tag.isId3Tag(raf.source)) {
                 raf.read(b);
                 if ((Arrays.equals(b, OggPageHeader.CAPTURE_PATTERN))) {
                     //Go to the end of the ID3 header

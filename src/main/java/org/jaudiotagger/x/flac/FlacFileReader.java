@@ -35,11 +35,11 @@ public class FlacFileReader extends AudioFileReader2 {
     private FlacInfoReader ir = new FlacInfoReader();
     private FlacTagReader tr = new FlacTagReader();
 
-    protected GenericAudioHeader getEncodingInfoV2(SlideBufferFileChannel channel) throws CannotReadException, IOException {
+    protected GenericAudioHeader getEncodingInfoV2(FileChannel channel) throws CannotReadException, IOException {
         return ir.read(channel);
     }
 
-    protected Tag getTagV2(SlideBufferFileChannel channel) throws CannotReadException, IOException {
+    protected Tag getTagV2(FileChannel channel) throws CannotReadException, IOException {
         return tr.read(channel);
     }
 

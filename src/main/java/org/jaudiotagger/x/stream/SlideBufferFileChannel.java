@@ -107,26 +107,26 @@ public class SlideBufferFileChannel extends FileChannel {
         throw new EOFException();
     }
 
-    public final byte readByte() throws IOException {
-        int ch = this.read();
-        if (ch < 0)
-            throw new EOFException();
-        return (byte)(ch);
-    }
+//    public final byte readByte() throws IOException {
+//        int ch = this.read();
+//        if (ch < 0)
+//            throw new EOFException();
+//        return (byte)(ch);
+//    }
 
-    public final void readFully(byte b[]) throws IOException {
-        readFully(b, 0, b.length);
-    }
-
-    public final void readFully(byte b[], int off, int len) throws IOException {
-        int n = 0;
-        do {
-            int count = this.read(b, off + n, len - n);
-            if (count < 0)
-                throw new EOFException();
-            n += count;
-        } while (n < len);
-    }
+//    public final void readFully(byte b[]) throws IOException {
+//        readFully(b, 0, b.length);
+//    }
+//
+//    public final void readFully(byte b[], int off, int len) throws IOException {
+//        int n = 0;
+//        do {
+//            int count = this.read(b, off + n, len - n);
+//            if (count < 0)
+//                throw new EOFException();
+//            n += count;
+//        } while (n < len);
+//    }
 
 
     private int readProxy(byte b[], int off, int len) throws IOException {
@@ -170,11 +170,11 @@ public class SlideBufferFileChannel extends FileChannel {
     }
 
 
-    public long skipBytes(int maxValue) throws IOException {
-        byte[] buff = new byte[maxValue];
-        readFully(buff);
-        return maxValue;
-    }
+//    public long skipBytes(int maxValue) throws IOException {
+//        byte[] buff = new byte[maxValue];
+//        readFully(buff);
+//        return maxValue;
+//    }
 
     @Override
     public long size() throws IOException {

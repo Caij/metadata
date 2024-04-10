@@ -4,7 +4,7 @@ import java.nio.channels.FileChannel;
 
 public interface ChannelCompat {
 
-    public SlideBufferFileChannel newFileChannel();
+    public FileChannel newFileChannel();
 
     long size();
 }

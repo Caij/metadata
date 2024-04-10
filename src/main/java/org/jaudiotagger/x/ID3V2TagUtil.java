@@ -10,13 +10,12 @@ import org.jaudiotagger.audio.mp3.MP3AudioHeader;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.TagNotFoundException;
 import org.jaudiotagger.tag.id3.*;
-import org.jaudiotagger.x.stream.FileChannelFileInputstream;
+import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
@@ -92,16 +91,16 @@ public class ID3V2TagUtil {
         return mp3AudioHeader;
     }
 
-    private static InputStream createStream(final SlideBufferFileChannel raf) {
-        return new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputstream(raf)));
+    private static InputStream createStream(final FileChannel raf) {
+        return new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputstreamV2(raf)));
     }
 
-    public static AsfHeader readInfoHeader(final SlideBufferFileChannel file) throws IOException {
+    public static AsfHeader readInfoHeader(final FileChannel file) throws IOException {
         final InputStream stream = createStream(file);
         return AsfHeaderReader.INFO_READER.read(Utils.readGUID(stream), stream, 0);
     }
 
-    public static AsfHeader readTagHeader(final SlideBufferFileChannel file) throws IOException {
+    public static AsfHeader readTagHeader(final FileChannel file) throws IOException {
         final InputStream stream = createStream(file);
         return AsfHeaderReader.TAG_READER.read(Utils.readGUID(stream), stream, 0);
     }

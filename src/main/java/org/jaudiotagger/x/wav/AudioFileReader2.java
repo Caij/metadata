@@ -27,7 +27,7 @@ public abstract class AudioFileReader2 extends AudioFileReader {
 
     @Override
     public XAudioFile read(ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
-        SlideBufferFileChannel channel = null;
+        FileChannel channel = null;
         try {
             channel = f.newFileChannel();
             GenericAudioHeader info = getEncodingInfoV2(channel);
@@ -53,10 +53,10 @@ public abstract class AudioFileReader2 extends AudioFileReader {
      * @throws CannotReadException
      * @throws IOException
      */
-    protected abstract GenericAudioHeader getEncodingInfoV2(SlideBufferFileChannel channel) throws CannotReadException, IOException;
+    protected abstract GenericAudioHeader getEncodingInfoV2(FileChannel channel) throws CannotReadException, IOException;
 
     @Override
-    protected GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) {
+    protected GenericAudioHeader getEncodingInfo(FileChannel raf) {
         throw new UnsupportedOperationException("Old method not used in version 2");
     }
 
@@ -68,10 +68,10 @@ public abstract class AudioFileReader2 extends AudioFileReader {
      * @throws CannotReadException
      * @throws IOException
      */
-    protected abstract Tag getTagV2(SlideBufferFileChannel channel) throws CannotReadException, IOException;
+    protected abstract Tag getTagV2(FileChannel channel) throws CannotReadException, IOException;
 
     @Override
-    protected Tag getTag(SlideBufferFileChannel file) {
+    protected Tag getTag(FileChannel file) {
         throw new UnsupportedOperationException("Old method not used in version 2");
     }
 }

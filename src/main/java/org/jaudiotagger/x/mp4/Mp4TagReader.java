@@ -32,6 +32,7 @@ import org.jcodec.containers.mp4.boxes.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class Mp4TagReader {
     // Logger Object
     public static Logger logger = Logger.getLogger("org.jaudiotagger.tag.mp4");
 
-    public Mp4Tag read(SlideBufferFileChannel fc) throws CannotReadException, IOException {
+    public Mp4Tag read(FileChannel fc) throws CannotReadException, IOException {
         MP4Util.Movie mp4 = MP4Util.parseFullMovieChannel(fc);
         Mp4Tag tag = new Mp4Tag();
 

@@ -37,10 +37,11 @@ import org.jaudiotagger.x.AudioFileReader;
 import org.jaudiotagger.x.ID3V2TagUtil;
 import org.jaudiotagger.x.XAudioFile;
 import org.jaudiotagger.x.stream.ChannelCompat;
-import org.jaudiotagger.x.stream.FileChannelFileInputstream;
+import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -132,7 +133,7 @@ public class AsfFileReader extends AudioFileReader {
      *
      */
     @Override
-    protected GenericAudioHeader getEncodingInfo(final SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    protected GenericAudioHeader getEncodingInfo(final FileChannel raf) throws CannotReadException, IOException {
         raf.position(0);
         GenericAudioHeader info;
         try {
@@ -167,7 +168,7 @@ public class AsfFileReader extends AudioFileReader {
      * (overridden)
      */
     @Override
-    protected AsfTag getTag(final SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    protected AsfTag getTag(final FileChannel raf) throws CannotReadException, IOException {
         raf.position(0);
         AsfTag tag;
         try {
@@ -196,10 +197,10 @@ public class AsfFileReader extends AudioFileReader {
      */
     @Override
     public XAudioFile read(final ChannelCompat f) throws CannotReadException, IOException, TagException, ReadOnlyFileException, InvalidAudioFrameException {
-        SlideBufferFileChannel fc = null;
+        FileChannel fc = null;
         try {
             fc = f.newFileChannel();
-            InputStream stream = new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputstream(fc)));
+            InputStream stream = new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputstreamV2(fc)));
             final AsfHeader header = HEADER_READER.read(Utils.readGUID(stream), stream, 0);
             if (header == null) {
                 throw new CannotReadException(ErrorMessage.ASF_HEADER_MISSING.getMsg(""));

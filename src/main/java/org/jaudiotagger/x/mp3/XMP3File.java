@@ -218,7 +218,7 @@ public class XMP3File extends XAudioFile {
      * @throws IOException
      * @throws InvalidAudioFrameException
      */
-    private MP3AudioHeader checkAudioStart(SlideBufferFileChannel fileChannel, long startByte, MP3AudioHeader firstHeaderAfterTag) throws IOException, InvalidAudioFrameException {
+    private MP3AudioHeader checkAudioStart(FileChannel fileChannel, long startByte, MP3AudioHeader firstHeaderAfterTag) throws IOException, InvalidAudioFrameException {
         MP3AudioHeader headerOne;
         MP3AudioHeader headerTwo;
 
@@ -268,7 +268,7 @@ public class XMP3File extends XAudioFile {
         }
     }
 
-    public XMP3File(SlideBufferFileChannel fc, int loadOptions, boolean readOnly) throws IOException, TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException {
+    public XMP3File(FileChannel fc, int loadOptions, boolean readOnly) throws IOException, TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException {
         //Read ID3v2 tag size (if tag exists) to allow audioHeader parsing to skip over tag
         long tagSizeReportedByHeader = ID3V2TagUtil.getV2TagSizeIfExists(fc);
         logger.config("TagHeaderSize:" + Hex.asHex(tagSizeReportedByHeader));

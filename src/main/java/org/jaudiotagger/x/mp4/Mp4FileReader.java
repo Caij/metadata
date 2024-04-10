@@ -27,6 +27,7 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.x.AudioFileReader;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 /**
  * Mp4 File Reader
@@ -38,12 +39,12 @@ public class Mp4FileReader extends AudioFileReader {
     private Mp4TagReader tr = new Mp4TagReader();
 
     @Override
-    protected GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    protected GenericAudioHeader getEncodingInfo(FileChannel raf) throws CannotReadException, IOException {
         return ir.read(raf);
     }
 
     @Override
-    protected Tag getTag(SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    protected Tag getTag(FileChannel raf) throws CannotReadException, IOException {
         return tr.read(raf);
     }
 }

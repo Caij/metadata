@@ -31,6 +31,7 @@ import org.jaudiotagger.x.stream.SlideBufferInputStream;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
 /*
@@ -59,7 +60,7 @@ public abstract class AudioFileReader {
      * @exception IOException is thrown when the RandomAccessFile operations throw it (you should never throw them manually)
      * @exception CannotReadException when an error occured during the parsing of the encoding infos
      */
-    protected abstract GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) throws CannotReadException, IOException;
+    protected abstract GenericAudioHeader getEncodingInfo(FileChannel raf) throws CannotReadException, IOException;
 
 
     /*
@@ -69,7 +70,7 @@ public abstract class AudioFileReader {
      * @exception IOException is thrown when the RandomAccessFile operations throw it (you should never throw them manually)
      * @exception CannotReadException when an error occured during the parsing of the tag
      */
-    protected abstract Tag getTag(SlideBufferFileChannel raf) throws CannotReadException, IOException;
+    protected abstract Tag getTag(FileChannel raf) throws CannotReadException, IOException;
 
     /*
      * Reads the given file, and return an AudioFile object containing the Tag
@@ -84,12 +85,12 @@ public abstract class AudioFileReader {
             throw new CannotReadException();
         }
 
-        SlideBufferFileChannel slideBufferFileChannel = null;
+        FileChannel fileChannel = null;
         try {
-            slideBufferFileChannel = f.newFileChannel();
-            GenericAudioHeader info = getEncodingInfo(slideBufferFileChannel);
-            slideBufferFileChannel.position(0);
-            Tag tag = getTag(slideBufferFileChannel);
+            fileChannel = f.newFileChannel();
+            GenericAudioHeader info = getEncodingInfo(fileChannel);
+            fileChannel.position(0);
+            Tag tag = getTag(fileChannel);
             return new XAudioFile(info, tag);
 
         } catch (CannotReadException cre) {
@@ -97,7 +98,7 @@ public abstract class AudioFileReader {
         } catch (Exception e) {
             throw new CannotReadException(e);
         } finally {
-            if (slideBufferFileChannel != null) slideBufferFileChannel.close();
+            if (fileChannel != null) fileChannel.close();
         }
     }
 }

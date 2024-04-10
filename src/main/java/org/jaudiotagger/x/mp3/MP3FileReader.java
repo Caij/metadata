@@ -14,6 +14,7 @@ import org.jaudiotagger.x.stream.ChannelCompat;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 /**
  * Read Mp3 Info (retrofitted to entagged ,done differently to entagged which is why some methods throw RuntimeException)
@@ -22,12 +23,12 @@ import java.io.IOException;
 public class MP3FileReader extends AudioFileReader {
 
     @Override
-    protected GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) {
+    protected GenericAudioHeader getEncodingInfo(FileChannel raf) {
         throw new RuntimeException("MP3FileReader.getEncodingInfo should be called");
     }
 
     @Override
-    protected Tag getTag(SlideBufferFileChannel raf) {
+    protected Tag getTag(FileChannel raf) {
         throw new RuntimeException("MP3FileReader.getEncodingInfo should be called");
     }
 
@@ -37,7 +38,7 @@ public class MP3FileReader extends AudioFileReader {
      */
     //Override because we read mp3s differently to the entagged code
     public XAudioFile read(ChannelCompat f) throws IOException, TagException, ReadOnlyFileException, CannotReadException, InvalidAudioFrameException {
-        SlideBufferFileChannel slideBufferFileChannel = null;
+        FileChannel slideBufferFileChannel = null;
         try {
             slideBufferFileChannel = f.newFileChannel();
             XMP3File mp3File = new XMP3File(slideBufferFileChannel, MP3File.LOAD_IDV1TAG | MP3File.LOAD_IDV2TAG, true);

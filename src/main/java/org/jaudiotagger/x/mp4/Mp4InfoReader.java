@@ -32,6 +32,7 @@ import org.jcodec.containers.mp4.boxes.*;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
 /**
@@ -61,7 +62,7 @@ public class Mp4InfoReader {
     // Logger Object
     public static Logger logger = Logger.getLogger("org.jaudiotagger.audio.mp4.atom");
 
-    public GenericAudioHeader read(SlideBufferFileChannel fc) throws CannotReadException, IOException {
+    public GenericAudioHeader read(FileChannel fc) throws CannotReadException, IOException {
         MP4Util.Movie mp4 = MP4Util.parseFullMovieChannel(fc);
         Mp4AudioHeader info = new Mp4AudioHeader();
 

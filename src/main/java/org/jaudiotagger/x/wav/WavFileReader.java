@@ -40,12 +40,12 @@ public class WavFileReader extends AudioFileReader2 {
 
 
     @Override
-    protected GenericAudioHeader getEncodingInfoV2(SlideBufferFileChannel channel) throws CannotReadException, IOException {
+    protected GenericAudioHeader getEncodingInfoV2(FileChannel channel) throws CannotReadException, IOException {
         return new WavInfoReader("").read(channel);
     }
 
     @Override
-    protected Tag getTagV2(SlideBufferFileChannel channel) throws IOException, CannotReadException {
+    protected Tag getTagV2(FileChannel channel) throws IOException, CannotReadException {
         WavTag tag = new WavTagReader("").read(channel);
         switch (TagOptionSingleton.getInstance().getWavOptions()) {
             case READ_ID3_ONLY_AND_SYNC:

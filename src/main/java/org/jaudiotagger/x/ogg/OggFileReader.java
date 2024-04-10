@@ -28,6 +28,7 @@ import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.logging.Logger;
 
 /**
@@ -48,12 +49,12 @@ public class OggFileReader extends AudioFileReader {
     }
 
     @Override
-    protected GenericAudioHeader getEncodingInfo(SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    protected GenericAudioHeader getEncodingInfo(FileChannel raf) throws CannotReadException, IOException {
         return ir.read(raf);
     }
 
     @Override
-    protected Tag getTag(SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    protected Tag getTag(FileChannel raf) throws CannotReadException, IOException {
         return vtr.read(raf);
     }
 

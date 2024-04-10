@@ -27,11 +27,13 @@ import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.vorbiscomment.VorbisCommentReader;
 import org.jaudiotagger.tag.vorbiscomment.VorbisCommentTag;
+import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
 import org.jaudiotagger.x.stream.SlideBufferFileChannel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +65,7 @@ public class OggVorbisTagReader {
      * @throws CannotReadException
      * @throws IOException
      */
-    public Tag read(SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    public Tag read(FileChannel raf) throws CannotReadException, IOException {
         logger.config("Starting to read ogg vorbis tag from file:");
         byte[] rawVorbisCommentData = readRawPacketData(raf);
 
@@ -81,26 +83,27 @@ public class OggVorbisTagReader {
      * @throws CannotReadException if unable to find vorbiscomment header
      * @throws IOException
      */
-    public byte[] readRawPacketData(SlideBufferFileChannel raf) throws CannotReadException, IOException {
+    public byte[] readRawPacketData(FileChannel raf) throws CannotReadException, IOException {
         logger.fine("Read 1st page");
         //1st page = codec infos
-        OggPageHeader pageHeader = OggPageHeaderUtil.read(raf);
+        FileChannelFileInputstreamV2 fileChannelFileInputstreamV2 = new FileChannelFileInputstreamV2(raf);
+        OggPageHeader pageHeader = OggPageHeaderUtil.read(fileChannelFileInputstreamV2);
         //Skip over data to end of page header 1
         raf.position(raf.position() + pageHeader.getPageLength());
 
         logger.fine("Read 2nd page");
         //2nd page = comment, may extend to additional pages or not , may also have setup header
-        pageHeader = OggPageHeaderUtil.read(raf);
+        pageHeader = OggPageHeaderUtil.read(fileChannelFileInputstreamV2);
 
         //Now at start of packets on page 2 , check this is the vorbis comment header 
         byte[] b = new byte[VorbisHeader.FIELD_PACKET_TYPE_LENGTH + VorbisHeader.FIELD_CAPTURE_PATTERN_LENGTH];
-        raf.read(b);
+        fileChannelFileInputstreamV2.read(b);
         if (!isVorbisCommentHeader(b)) {
             throw new CannotReadException("Cannot find comment block (no vorbiscomment header)");
         }
 
         //Convert the comment raw data which maybe over many pages back into raw packet
-        return convertToVorbisCommentPacket(pageHeader, raf);
+        return convertToVorbisCommentPacket(pageHeader, fileChannelFileInputstreamV2);
     }
 
 
@@ -138,7 +141,7 @@ public class OggVorbisTagReader {
      * @throws CannotReadException
      * @throws IOException
      */
-    protected byte[] convertToVorbisCommentPacket(OggPageHeader startVorbisCommentPage, SlideBufferFileChannel raf) throws IOException, CannotReadException {
+    protected byte[] convertToVorbisCommentPacket(OggPageHeader startVorbisCommentPage, FileChannelFileInputstreamV2 raf) throws IOException, CannotReadException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] b = new byte[startVorbisCommentPage.getPacketList().get(0).getLength() - (VorbisHeader.FIELD_PACKET_TYPE_LENGTH + VorbisHeader.FIELD_CAPTURE_PATTERN_LENGTH)];
         raf.read(b);

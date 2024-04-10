@@ -26,11 +26,9 @@ import org.jaudiotagger.audio.ogg.util.OggPageHeader;
 import org.jaudiotagger.audio.ogg.util.VorbisIdentificationHeader;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
-import org.jaudiotagger.x.stream.ChannelCompat;
-import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -42,19 +40,20 @@ public class OggInfoReader {
 
     public static Logger logger = Logger.getLogger("org.jaudiotagger.audio.ogg.atom");
 
-    public GenericAudioHeader read(SlideBufferFileChannel fc) throws CannotReadException, IOException {
+    public GenericAudioHeader read(FileChannel fc) throws CannotReadException, IOException {
         long start = fc.position();
+        FileChannelFileInputstreamV2 fileChannelFileInputstreamV2 = new FileChannelFileInputstreamV2(fc);
         GenericAudioHeader info = new GenericAudioHeader();
         logger.fine("Started");
         long oldPos;
 
         //Check start of file does it have Ogg pattern
         byte[] b = new byte[OggPageHeader.CAPTURE_PATTERN.length];
-        fc.read(b);
+        fileChannelFileInputstreamV2.read(b);
         if (!(Arrays.equals(b, OggPageHeader.CAPTURE_PATTERN))) {
             fc.position(0);
             if (AbstractID3v2Tag.isId3Tag(fc)) {
-                fc.read(b);
+                fileChannelFileInputstreamV2.read(b);
                 if ((Arrays.equals(b, OggPageHeader.CAPTURE_PATTERN))) {
                     start = fc.position();
                 }
@@ -69,22 +68,22 @@ public class OggInfoReader {
         fc.position(start);
         long pcmSamplesNumber = -1;
         fc.position(fc.size() - 2);
-        fc.holder();
+        fileChannelFileInputstreamV2.holder();
         while (fc.position() >= 4) {
-            if (fc.read() == OggPageHeader.CAPTURE_PATTERN[3]) {
+            if (fileChannelFileInputstreamV2.read() == OggPageHeader.CAPTURE_PATTERN[3]) {
                 fc.position(fc.position() - OggPageHeader.FIELD_CAPTURE_PATTERN_LENGTH);
                 byte[] ogg = new byte[3];
-                fc.readFully(ogg);
+                fileChannelFileInputstreamV2.readFully(ogg);
                 if (ogg[0] == OggPageHeader.CAPTURE_PATTERN[0] && ogg[1] == OggPageHeader.CAPTURE_PATTERN[1] && ogg[2] == OggPageHeader.CAPTURE_PATTERN[2]) {
                     fc.position(fc.position() - 3);
 
                     oldPos = fc.position();
                     fc.position(fc.position() + OggPageHeader.FIELD_PAGE_SEGMENTS_POS);
-                    int pageSegments = fc.readByte() & 0xFF; //Unsigned
+                    int pageSegments = fileChannelFileInputstreamV2.readByte() & 0xFF; //Unsigned
                     fc.position(oldPos);
 
                     b = new byte[OggPageHeader.OGG_PAGE_HEADER_FIXED_LENGTH + pageSegments];
-                    fc.readFully(b);
+                    fileChannelFileInputstreamV2.readFully(b);
 
                     OggPageHeader pageHeader = new OggPageHeader(b);
                     fc.position(0);
@@ -101,10 +100,10 @@ public class OggInfoReader {
         }
 
         //1st page = Identification Header
-        OggPageHeader pageHeader = OggPageHeaderUtil.read(fc);
+        OggPageHeader pageHeader = OggPageHeaderUtil.read(fileChannelFileInputstreamV2);
         byte[] vorbisData = new byte[pageHeader.getPageLength()];
 
-        fc.read(vorbisData);
+        fileChannelFileInputstreamV2.read(vorbisData);
         VorbisIdentificationHeader vorbisIdentificationHeader = new VorbisIdentificationHeader(vorbisData);
 
         //Map to generic encodingInfo
