@@ -11,7 +11,7 @@ import java.nio.channels.FileChannel;
  *
  * @author Christian Laireiter
  */
-public final class FileChannelFileInputstreamV2 extends InputStream {
+public final class FileChannelFileInputStreamV2 extends InputStream {
 
     /**
      * The file access to read from.<br>
@@ -24,7 +24,7 @@ public final class FileChannelFileInputstreamV2 extends InputStream {
      *
      * @param file The file to read.
      */
-    public FileChannelFileInputstreamV2(final FileChannel file) {
+    public FileChannelFileInputStreamV2(final FileChannel file) {
         super();
         if (file == null) {
             throw new IllegalArgumentException("null");
@@ -107,4 +107,6 @@ public final class FileChannelFileInputstreamV2 extends InputStream {
         }
         return bytesRead;
     }
+
+
 }

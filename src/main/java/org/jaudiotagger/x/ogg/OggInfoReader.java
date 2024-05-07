@@ -26,7 +26,7 @@ import org.jaudiotagger.audio.ogg.util.OggPageHeader;
 import org.jaudiotagger.audio.ogg.util.VorbisIdentificationHeader;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
-import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
+import org.jaudiotagger.x.stream.FileChannelFileInputStreamV2;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -42,7 +42,7 @@ public class OggInfoReader {
 
     public GenericAudioHeader read(FileChannel fc) throws CannotReadException, IOException {
         long start = fc.position();
-        FileChannelFileInputstreamV2 fileChannelFileInputstreamV2 = new FileChannelFileInputstreamV2(fc);
+        FileChannelFileInputStreamV2 fileChannelFileInputstreamV2 = new FileChannelFileInputStreamV2(fc);
         GenericAudioHeader info = new GenericAudioHeader();
         logger.fine("Started");
         long oldPos;

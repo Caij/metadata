@@ -18,7 +18,6 @@
  */
 package org.jaudiotagger.x.asf;
 
-import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.asf.data.AsfHeader;
 import org.jaudiotagger.audio.asf.data.AudioStreamChunk;
 import org.jaudiotagger.audio.asf.data.MetadataContainer;
@@ -37,8 +36,7 @@ import org.jaudiotagger.x.AudioFileReader;
 import org.jaudiotagger.x.ID3V2TagUtil;
 import org.jaudiotagger.x.XAudioFile;
 import org.jaudiotagger.x.stream.ChannelCompat;
-import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
-import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.FileChannelFileInputStreamV2;
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -200,7 +198,7 @@ public class AsfFileReader extends AudioFileReader {
         FileChannel fc = null;
         try {
             fc = f.newFileChannel();
-            InputStream stream = new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputstreamV2(fc)));
+            InputStream stream = new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputStreamV2(fc)));
             final AsfHeader header = HEADER_READER.read(Utils.readGUID(stream), stream, 0);
             if (header == null) {
                 throw new CannotReadException(ErrorMessage.ASF_HEADER_MISSING.getMsg(""));

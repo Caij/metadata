@@ -7,6 +7,7 @@ import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.x.ape.ApeFileReader;
 import org.jaudiotagger.x.asf.AsfFileReader;
 import org.jaudiotagger.x.flac.FlacFileReader;
 import org.jaudiotagger.x.mp3.MP3FileReader;
@@ -50,6 +51,7 @@ public class XAudioFileIO {
         readers.put(SupportedFileFormat.M4B.getFilesuffix(), new Mp4FileReader());
         readers.put(SupportedFileFormat.WAV.getFilesuffix(), new WavFileReader());
         readers.put(SupportedFileFormat.WMA.getFilesuffix(), new AsfFileReader());
+        readers.put(SupportedFileFormat.APE.getFilesuffix(), new ApeFileReader());
 //        readers.put(SupportedFileFormat.AIF.getFilesuffix(), new AiffFileReader());
 //        readers.put(SupportedFileFormat.AIFC.getFilesuffix(), new AiffFileReader());
 //        readers.put(SupportedFileFormat.AIFF.getFilesuffix(), new AiffFileReader());

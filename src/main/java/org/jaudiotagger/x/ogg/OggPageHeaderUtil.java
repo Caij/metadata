@@ -4,17 +4,15 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.ogg.util.OggPageHeader;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag;
-import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
-import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.FileChannelFileInputStreamV2;
 
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 public class OggPageHeaderUtil {
 
 
-    public static OggPageHeader read(FileChannelFileInputstreamV2 raf) throws IOException, CannotReadException {
+    public static OggPageHeader read(FileChannelFileInputStreamV2 raf) throws IOException, CannotReadException {
         long start = raf.position();
 
         byte[] b = new byte[OggPageHeader.CAPTURE_PATTERN.length];

@@ -11,6 +11,7 @@ import org.jaudiotagger.tag.flac.FlacTag;
 import org.jaudiotagger.tag.mp4.Mp4Tag;
 import org.jaudiotagger.tag.vorbiscomment.VorbisCommentTag;
 import org.jaudiotagger.tag.wav.WavTag;
+import org.jaudiotagger.x.ape.ApeTag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,6 +117,12 @@ public enum SupportedFileFormat {
         @Override
         public Tag createDefaultTag() {
             return VorbisCommentTag.createNewTag();
+        }
+    },
+    APE("ape") {
+        @Override
+        public Tag createDefaultTag() {
+            return new ApeTag();
         }
     },
     UNKNOWN("") {

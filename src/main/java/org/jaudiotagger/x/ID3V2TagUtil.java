@@ -3,15 +3,13 @@ package org.jaudiotagger.x;
 import org.jaudiotagger.audio.asf.data.AsfHeader;
 import org.jaudiotagger.audio.asf.io.AsfHeaderReader;
 import org.jaudiotagger.audio.asf.io.FullRequestInputStream;
-import org.jaudiotagger.audio.asf.io.RandomAccessFileInputstream;
 import org.jaudiotagger.audio.asf.util.Utils;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.mp3.MP3AudioHeader;
 import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.TagNotFoundException;
 import org.jaudiotagger.tag.id3.*;
-import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
-import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.FileChannelFileInputStreamV2;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -92,7 +90,7 @@ public class ID3V2TagUtil {
     }
 
     private static InputStream createStream(final FileChannel raf) {
-        return new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputstreamV2(raf)));
+        return new FullRequestInputStream(new BufferedInputStream(new FileChannelFileInputStreamV2(raf)));
     }
 
     public static AsfHeader readInfoHeader(final FileChannel file) throws IOException {

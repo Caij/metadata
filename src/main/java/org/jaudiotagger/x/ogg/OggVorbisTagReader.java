@@ -27,8 +27,7 @@ import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.vorbiscomment.VorbisCommentReader;
 import org.jaudiotagger.tag.vorbiscomment.VorbisCommentTag;
-import org.jaudiotagger.x.stream.FileChannelFileInputstreamV2;
-import org.jaudiotagger.x.stream.SlideBufferFileChannel;
+import org.jaudiotagger.x.stream.FileChannelFileInputStreamV2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -86,7 +85,7 @@ public class OggVorbisTagReader {
     public byte[] readRawPacketData(FileChannel raf) throws CannotReadException, IOException {
         logger.fine("Read 1st page");
         //1st page = codec infos
-        FileChannelFileInputstreamV2 fileChannelFileInputstreamV2 = new FileChannelFileInputstreamV2(raf);
+        FileChannelFileInputStreamV2 fileChannelFileInputstreamV2 = new FileChannelFileInputStreamV2(raf);
         OggPageHeader pageHeader = OggPageHeaderUtil.read(fileChannelFileInputstreamV2);
         //Skip over data to end of page header 1
         raf.position(raf.position() + pageHeader.getPageLength());
@@ -141,7 +140,7 @@ public class OggVorbisTagReader {
      * @throws CannotReadException
      * @throws IOException
      */
-    protected byte[] convertToVorbisCommentPacket(OggPageHeader startVorbisCommentPage, FileChannelFileInputstreamV2 raf) throws IOException, CannotReadException {
+    protected byte[] convertToVorbisCommentPacket(OggPageHeader startVorbisCommentPage, FileChannelFileInputStreamV2 raf) throws IOException, CannotReadException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] b = new byte[startVorbisCommentPage.getPacketList().get(0).getLength() - (VorbisHeader.FIELD_PACKET_TYPE_LENGTH + VorbisHeader.FIELD_CAPTURE_PATTERN_LENGTH)];
         raf.read(b);
