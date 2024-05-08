@@ -1,6 +1,5 @@
 package org.jaudiotagger.x.ape;
 
-import davaguine.jmac.info.APEHeader;
 import davaguine.jmac.info.APETag;
 import org.jaudiotagger.tag.*;
 import org.jaudiotagger.tag.images.Artwork;
@@ -66,6 +65,7 @@ public class ApeTag implements Tag {
             if (v1 == null && id.equals(FieldKey.LYRICS.name())) {
                 return apeTag.GetFieldString("UNSYNCEDLYRICS");
             }
+            return v1;
         } catch (Exception ignore) {
 
         }
