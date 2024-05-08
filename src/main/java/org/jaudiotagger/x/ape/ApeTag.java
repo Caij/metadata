@@ -7,6 +7,7 @@ import org.jaudiotagger.tag.images.StandardArtwork;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -152,9 +153,14 @@ public class ApeTag implements Tag {
     public Artwork getFirstArtwork() {
         try {
             byte[] art = apeTag.GetFieldBinary(APETag.APE_TAG_FIELD_COVER_ART_FRONT);
-            StandardArtwork artwork = new StandardArtwork();
-            artwork.setBinaryData(art);
-            return artwork;
+            if (art != null) {
+                int prex = APETag.APE_TAG_FIELD_COVER_ART_FRONT.getBytes(StandardCharsets.UTF_8).length + 1 + 4;
+                byte[] copy = new byte[art.length - prex];
+                System.arraycopy(art, prex, copy, 0, copy.length);
+                StandardArtwork artwork = new StandardArtwork();
+                artwork.setBinaryData(copy);
+                return artwork;
+            }
         } catch (IOException e) {
 
         }

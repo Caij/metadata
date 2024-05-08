@@ -34,7 +34,6 @@ public class ApeFileReader extends AudioFileReader {
         try {
             APEInfo apeInfo = new APEInfo(randomAccessFile);
             APETag apeTag = apeInfo.getApeInfoTag();
-            apeTag.GetTagBytes();
             return new AudioFile(f, new ApeAudioHeader(apeInfo), new ApeTag(apeTag));
         } finally {
             randomAccessFile.close();
