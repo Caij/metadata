@@ -9,9 +9,40 @@ import java.util.Objects;
 
 public class CharsetDetectorUtil {
 
-    private static List<String> sUserLanguages;
-    public static void init(List<String> userLanguages) {
-        sUserLanguages = userLanguages;
+    private static CharsetDetectorMapper sCharsetDetectorMapper;
+
+    public static interface CharsetDetectorMapper {
+        String map(String detectedCharset);
+    }
+
+    public static class DefaultCharsetDetectorMapper implements CharsetDetectorMapper {
+
+        private List<String> userLanguages;
+
+        public DefaultCharsetDetectorMapper(List<String> userLanguages) {
+            this.userLanguages = userLanguages;
+        }
+
+        @Override
+        public String map(String detectedCharset) {
+            if (userLanguages == null || Objects.equals(detectedCharset, "UTF-8") || Objects.equals(detectedCharset, "UTF-16")
+                    || detectedCharset.contains("GB")
+                    || detectedCharset.contains("ISO-8859")
+                    || detectedCharset.toUpperCase().contains("BIG")) {
+                return detectedCharset;
+            } else  {
+                for (String language : userLanguages) {
+                    if (language.contains("zh") || language.contains("ZH")) {
+                        return "GBK";
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    public static void init(CharsetDetectorMapper charsetDetectorMapper) {
+        sCharsetDetectorMapper = charsetDetectorMapper;
     }
 
     public static Charset detected(byte[] data) {
@@ -39,17 +70,9 @@ public class CharsetDetectorUtil {
     }
 
     private static String mapOrDefault(String detectedCharset) {
-        if (sUserLanguages == null || Objects.equals(detectedCharset, "UTF-8") || Objects.equals(detectedCharset, "UTF-16")
-                || detectedCharset.contains("GB")
-                || detectedCharset.contains("ISO-8859")
-                || detectedCharset.toUpperCase().contains("BIG")) {
-            return detectedCharset;
-        } else  {
-            for (String language : sUserLanguages) {
-                if (language.contains("zh") || language.contains("ZH")) {
-                    return "GBK";
-                }
-            }
+        if (sCharsetDetectorMapper != null) {
+            String mapValue = sCharsetDetectorMapper.map(detectedCharset);
+            if (mapValue != null) return mapValue;
         }
         return detectedCharset;
     }
@@ -62,7 +85,8 @@ public class CharsetDetectorUtil {
 
     public static Charset detected(InputStream inputStream) throws FileNotFoundException {
         try {
-            String detectedCharset =  UniversalDetector.detectCharset(inputStream);
+            String detectedCharset = UniversalDetector.detectCharset(inputStream);
+            detectedCharset = mapOrDefault(detectedCharset);
             if (detectedCharset != null && Charset.isSupported(detectedCharset)) {
                 return Charset.forName(detectedCharset);
             }
