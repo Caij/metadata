@@ -4,8 +4,15 @@ import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Objects;
 
 public class CharsetDetectorUtil {
+
+    private static List<String> sUserLanguages;
+    public static void init(List<String> userLanguages) {
+        sUserLanguages = userLanguages;
+    }
 
     public static Charset detected(byte[] data) {
         return detected(data, 0, data.length);
@@ -21,6 +28,7 @@ public class CharsetDetectorUtil {
             }
             detector.dataEnd();
             String detectedCharset = detector.getDetectedCharset();
+            detectedCharset = mapOrDefault(detectedCharset);
             if (detectedCharset != null && Charset.isSupported(detectedCharset)) {
                 return Charset.forName(detectedCharset);
             }
@@ -28,6 +36,22 @@ public class CharsetDetectorUtil {
 
         }
         return null;
+    }
+
+    private static String mapOrDefault(String detectedCharset) {
+        if (sUserLanguages == null || Objects.equals(detectedCharset, "UTF-8") || Objects.equals(detectedCharset, "UTF-16")
+                || detectedCharset.contains("GB")
+                || detectedCharset.contains("ISO-8859")
+                || detectedCharset.toUpperCase().contains("BIG")) {
+            return detectedCharset;
+        } else  {
+            for (String language : sUserLanguages) {
+                if (language.contains("zh") || language.contains("ZH")) {
+                    return "GBK";
+                }
+            }
+        }
+        return detectedCharset;
     }
 
     public static Charset detected(File file) throws FileNotFoundException {
