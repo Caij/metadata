@@ -27,6 +27,7 @@ import org.jaudiotagger.logging.ErrorMessage;
 import org.jaudiotagger.tag.*;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.reference.GenreTypes;
+import org.jaudiotagger.x.CharsetDetectorUtil;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -782,17 +783,29 @@ public class ID3v1Tag extends AbstractID3v1Tag implements Tag {
         byte[] dataBuffer = new byte[TAG_LENGTH];
         byteBuffer.position(0);
         byteBuffer.get(dataBuffer, 0, TAG_LENGTH);
-        title = new String(dataBuffer, FIELD_TITLE_POS, FIELD_TITLE_LENGTH, Charset.forName("ISO-8859-1")).trim();
+        Charset detectedCharset = CharsetDetectorUtil.detected(dataBuffer, FIELD_TITLE_POS, FIELD_TITLE_LENGTH);
+        if (detectedCharset == null) {
+            detectedCharset = Charset.forName("ISO-8859-1");
+        }
+        title = new String(dataBuffer, FIELD_TITLE_POS, FIELD_TITLE_LENGTH, detectedCharset).trim();
         Matcher m = AbstractID3v1Tag.endofStringPattern.matcher(title);
         if (m.find()) {
             title = title.substring(0, m.start());
         }
-        artist = new String(dataBuffer, FIELD_ARTIST_POS, FIELD_ARTIST_LENGTH, Charset.forName("ISO-8859-1")).trim();
+        detectedCharset = CharsetDetectorUtil.detected(dataBuffer, FIELD_ARTIST_POS, FIELD_ARTIST_LENGTH);
+        if (detectedCharset == null) {
+            detectedCharset = Charset.forName("ISO-8859-1");
+        }
+        artist = new String(dataBuffer, FIELD_ARTIST_POS, FIELD_ARTIST_LENGTH, detectedCharset).trim();
         m = AbstractID3v1Tag.endofStringPattern.matcher(artist);
         if (m.find()) {
             artist = artist.substring(0, m.start());
         }
-        album = new String(dataBuffer, FIELD_ALBUM_POS, FIELD_ALBUM_LENGTH, Charset.forName("ISO-8859-1")).trim();
+        detectedCharset = CharsetDetectorUtil.detected(dataBuffer, FIELD_ALBUM_POS, FIELD_ALBUM_LENGTH);
+        if (detectedCharset == null) {
+            detectedCharset = Charset.forName("ISO-8859-1");
+        }
+        album = new String(dataBuffer, FIELD_ALBUM_POS, FIELD_ALBUM_LENGTH, detectedCharset).trim();
         m = AbstractID3v1Tag.endofStringPattern.matcher(album);
         logger.finest(getLoggingFilename() + ":" + "Orig Album is:" + comment + ":");
         if (m.find()) {
@@ -804,7 +817,11 @@ public class ID3v1Tag extends AbstractID3v1Tag implements Tag {
         if (m.find()) {
             year = year.substring(0, m.start());
         }
-        comment = new String(dataBuffer, FIELD_COMMENT_POS, FIELD_COMMENT_LENGTH, Charset.forName("ISO-8859-1")).trim();
+        detectedCharset = CharsetDetectorUtil.detected(dataBuffer, FIELD_COMMENT_POS, FIELD_COMMENT_LENGTH);
+        if (detectedCharset == null) {
+            detectedCharset = Charset.forName("ISO-8859-1");
+        }
+        comment = new String(dataBuffer, FIELD_COMMENT_POS, FIELD_COMMENT_LENGTH, detectedCharset).trim();
         m = AbstractID3v1Tag.endofStringPattern.matcher(comment);
         logger.finest(getLoggingFilename() + ":" + "Orig Comment is:" + comment + ":");
         if (m.find()) {
