@@ -25,19 +25,20 @@ public class CharsetDetectorUtil {
 
         @Override
         public String map(String detectedCharset) {
-            if (userLanguages == null || Objects.equals(detectedCharset, "UTF-8") || Objects.equals(detectedCharset, "UTF-16")
-                    || detectedCharset.contains("GB")
-                    || detectedCharset.contains("ISO-8859")
-                    || detectedCharset.toUpperCase().contains("BIG")) {
-                return detectedCharset;
-            } else  {
-                for (String language : userLanguages) {
-                    if (language.contains("zh") || language.contains("ZH")) {
+            if (userLanguages == null) return detectedCharset;
+            for (String language : userLanguages) {
+                if (language.contains("zh") || language.contains("ZH")) {
+                    if (Objects.equals(detectedCharset, "UTF-8") || Objects.equals(detectedCharset, "UTF-16")
+                            || detectedCharset.contains("GB")
+                            || detectedCharset.contains("ISO-8859")
+                            || detectedCharset.toUpperCase().contains("BIG")) {
+                        return detectedCharset;
+                    } else {
                         return "GBK";
                     }
                 }
             }
-            return null;
+            return detectedCharset;
         }
     }
 
@@ -59,7 +60,9 @@ public class CharsetDetectorUtil {
             }
             detector.dataEnd();
             String detectedCharset = detector.getDetectedCharset();
-            detectedCharset = mapOrDefault(detectedCharset);
+            if (detectedCharset != null) {
+                detectedCharset = mapOrDefault(detectedCharset);
+            }
             if (detectedCharset != null && Charset.isSupported(detectedCharset)) {
                 return Charset.forName(detectedCharset);
             }
