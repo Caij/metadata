@@ -23,8 +23,10 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.generic.Utils;
 import org.jaudiotagger.audio.ogg.util.VorbisHeader;
 import org.jaudiotagger.logging.ErrorMessage;
+import org.jaudiotagger.x.CharsetDetectorCompat;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
@@ -99,6 +101,34 @@ public class VorbisCommentReader {
         int userComments = Utils.getIntLE(b);
         logger.config("Number of user comments:" + userComments);
 
+        CharsetDetectorCompat charsetDetectorCompat = new CharsetDetectorCompat();
+        //CharsetDetectorCompat
+        int tempPos = pos;
+        for (int i = 0; i < userComments; i++) {
+            b = new byte[FIELD_COMMENT_LENGTH_LENGTH];
+            System.arraycopy(rawdata, tempPos, b, 0, FIELD_COMMENT_LENGTH_LENGTH);
+            tempPos += FIELD_COMMENT_LENGTH_LENGTH;
+
+            int commentLength = Utils.getIntLE(b);
+            logger.config("Next Comment Length:" + commentLength);
+
+            if (commentLength > JAUDIOTAGGER_MAX_COMMENT_LENGTH) {
+                logger.warning(ErrorMessage.VORBIS_COMMENT_LENGTH_TOO_LARGE.getMsg(commentLength));
+                break;
+            } else if (commentLength > rawdata.length) {
+                logger.warning(ErrorMessage.VORBIS_COMMENT_LENGTH_LARGE_THAN_HEADER.getMsg(commentLength, rawdata.length));
+                break;
+            } else {
+                b = new byte[commentLength];
+                System.arraycopy(rawdata, tempPos, b, 0, commentLength);
+                tempPos += commentLength;
+                charsetDetectorCompat.handleData(b);
+            }
+        }
+
+        charsetDetectorCompat.end();
+        Charset charset = charsetDetectorCompat.getDetectedCharset();
+
         for (int i = 0; i < userComments; i++) {
             b = new byte[FIELD_COMMENT_LENGTH_LENGTH];
             System.arraycopy(rawdata, pos, b, 0, FIELD_COMMENT_LENGTH_LENGTH);
@@ -118,7 +148,7 @@ public class VorbisCommentReader {
                 System.arraycopy(rawdata, pos, b, 0, commentLength);
                 pos += commentLength;
 
-                VorbisCommentTagField fieldComment = new VorbisCommentTagField(b);
+                VorbisCommentTagField fieldComment = new VorbisCommentTagField(b, charset);
                 logger.config("Adding:" + fieldComment.getId());
                 tag.addField(fieldComment);
             }

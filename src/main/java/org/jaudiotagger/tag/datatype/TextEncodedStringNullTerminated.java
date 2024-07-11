@@ -67,6 +67,7 @@ public class TextEncodedStringNullTerminated extends AbstractString {
 
         //Get the Specified Decoder
         final Charset charset = getTextEncodingCharSet();
+        final boolean hadTextEncoding = getBody().hadTextEncoding();
 
 
         //We only want to load up to null terminator, data after this is part of different
@@ -153,9 +154,14 @@ public class TextEncodedStringNullTerminated extends AbstractString {
             ByteBuffer inBuffer = ByteBuffer.wrap(arr, offset, bufferSize).slice();
             CharBuffer outBuffer = CharBuffer.allocate(bufferSize);
 
-            Charset detectedCharset = CharsetDetectorUtil.detected(arr, offset, bufferSize);
+            Charset resultCharset;
+            if (hadTextEncoding) {
+                resultCharset = charset;
+            } else  {
+                resultCharset = CharsetDetectorUtil.detected(arr, offset, bufferSize);
+            }
 
-            final CharsetDecoder decoder = getCorrectDecoder(inBuffer, detectedCharset);
+            final CharsetDecoder decoder = getCorrectDecoder(inBuffer, resultCharset);
             CoderResult coderResult = decoder.decode(inBuffer, outBuffer, true);
             if (coderResult.isError()) {
                 logger.warning("Problem decoding text encoded null terminated string:" + coderResult.toString());

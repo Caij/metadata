@@ -75,6 +75,16 @@ public abstract class AbstractTagFrameBody extends AbstractTagItem {
         }
     }
 
+    public final boolean hadTextEncoding() {
+        AbstractDataType o = getObject(DataTypes.OBJ_TEXT_ENCODING);
+        if (o != null) {
+            Long encoding = (Long) (o.getValue());
+            return encoding.byteValue() != 0;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Set the Text Encoding to use for this frame body
      *

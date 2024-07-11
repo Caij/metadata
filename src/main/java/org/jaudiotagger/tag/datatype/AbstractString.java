@@ -124,15 +124,15 @@ public abstract class AbstractString extends AbstractDataType {
     protected CharsetDecoder getCorrectDecoder(ByteBuffer inBuffer, Charset detectedCharset) {
         CharsetDecoder decoder = null;
         if (inBuffer.remaining() <= 2) {
-            decoder = getTextEncodingCharSet(detectedCharset).newDecoder();
+            decoder = detectedCharset.newDecoder();
             decoder.reset();
             return decoder;
         }
 
-        if (getTextEncodingCharSet(detectedCharset) == Charset.forName("UTF-16")) {
+        if (detectedCharset == Charset.forName("UTF-16")) {
             if (inBuffer.getChar(0) == 0xfffe || inBuffer.getChar(0) == 0xfeff) {
                 //Get the Specified Decoder
-                decoder = getTextEncodingCharSet(detectedCharset).newDecoder();
+                decoder = detectedCharset.newDecoder();
                 decoder.reset();
             } else {
                 if (inBuffer.get(0) == 0) {
@@ -144,7 +144,7 @@ public abstract class AbstractString extends AbstractDataType {
                 }
             }
         } else {
-            decoder = getTextEncodingCharSet(detectedCharset).newDecoder();
+            decoder = detectedCharset.newDecoder();
             decoder.reset();
         }
         return decoder;
@@ -157,14 +157,10 @@ public abstract class AbstractString extends AbstractDataType {
      *
      * @return the text encoding charset
      */
-    protected Charset getTextEncodingCharSet(Charset detectedCharset) {
+    protected Charset getTextEncodingCharSet() {
         final byte textEncoding = this.getBody().getTextEncoding();
-        if (textEncoding == 0 && detectedCharset != null) {
-            return detectedCharset;
-        } else {
-            final Charset charSetName = TextEncoding.getInstanceOf().getCharsetForId(textEncoding);
-            logger.finest("text encoding:" + textEncoding + " charset:" + charSetName.name());
-            return charSetName;
-        }
+        final Charset charSetName = TextEncoding.getInstanceOf().getCharsetForId(textEncoding);
+        logger.finest("text encoding:" + textEncoding + " charset:" + charSetName.name());
+        return charSetName;
     }
 }

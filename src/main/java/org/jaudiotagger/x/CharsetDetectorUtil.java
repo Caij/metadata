@@ -51,6 +51,8 @@ public class CharsetDetectorUtil {
     }
 
     public static Charset detected(byte[] data, int start, int length) {
+        if (data.length == 0) return null;
+        if (length == 0) return null;
         try {
             UniversalDetector detector = new UniversalDetector();
             int max = 10;
@@ -68,6 +70,16 @@ public class CharsetDetectorUtil {
             }
         } catch (Throwable ignore) {
 
+        }
+        return null;
+    }
+
+    public static Charset format(String detectedCharset) {
+        if (detectedCharset != null) {
+            detectedCharset = mapOrDefault(detectedCharset);
+        }
+        if (detectedCharset != null && Charset.isSupported(detectedCharset)) {
+            return Charset.forName(detectedCharset);
         }
         return null;
     }

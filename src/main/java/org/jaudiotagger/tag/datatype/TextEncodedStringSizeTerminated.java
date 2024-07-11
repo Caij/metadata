@@ -84,10 +84,14 @@ public class TextEncodedStringSizeTerminated extends AbstractString {
             inBuffer = ByteBuffer.wrap(arr, offset, arr.length - offset).slice();
         }
 
-        Charset detectedCharset = CharsetDetectorUtil.detected(arr, offset, arr.length - offset);
+        Charset detectedCharset;
+        if (getBody().hadTextEncoding()) {
+            detectedCharset = getTextEncodingCharSet();
+        } else  {
+            detectedCharset = CharsetDetectorUtil.detected(arr, offset, arr.length - offset);
+        }
 
         CharBuffer outBuffer = CharBuffer.allocate(arr.length - offset);
-
 
         CharsetDecoder decoder = getCorrectDecoder(inBuffer, detectedCharset);
         CoderResult coderResult = decoder.decode(inBuffer, outBuffer, true);
@@ -99,7 +103,7 @@ public class TextEncodedStringSizeTerminated extends AbstractString {
 
         //If using UTF16 with BOM we then search through the text removing any BOMs that could exist
         //for multiple values, BOM could be Big Endian or Little Endian
-        if (Charset.forName("UTF-16").equals(getTextEncodingCharSet(detectedCharset))) {
+        if (Charset.forName("UTF-16").equals(detectedCharset)) {
             value = outBuffer.toString().replace("\ufeff", "").replace("\ufffe", "");
         } else {
             value = outBuffer.toString();
@@ -239,7 +243,7 @@ public class TextEncodedStringSizeTerminated extends AbstractString {
     public byte[] writeByteArray() {
         byte[] data;
         //Try and write to buffer using the CharSet defined by getTextEncodingCharSet()
-        final Charset charset = getTextEncodingCharSet(null);
+        final Charset charset = getTextEncodingCharSet();
         try {
 
             stripTrailingNull();
