@@ -43,8 +43,4 @@ public class CharsetDetectorCompat {
     public Charset getDetectedCharset() {
         return CharsetDetectorUtil.format(detector.getDetectedCharset());
     }
-
-    public boolean isDone() {
-        return detector.isDone();
-    }
 }
