@@ -90,6 +90,7 @@ public class TextEncodedStringSizeTerminated extends AbstractString {
         } else  {
             detectedCharset = CharsetDetectorUtil.detected(arr, offset, arr.length - offset);
         }
+        if (detectedCharset == null) detectedCharset = StandardCharsets.UTF_8;
 
         CharBuffer outBuffer = CharBuffer.allocate(arr.length - offset);
 
