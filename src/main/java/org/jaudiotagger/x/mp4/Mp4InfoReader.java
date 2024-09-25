@@ -33,6 +33,7 @@ import org.jcodec.containers.mp4.boxes.*;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -194,7 +195,7 @@ public class Mp4InfoReader {
         }
 
         //This is the most likely option if cant find a match
-        if (info.getEncodingType().equals("")) {
+        if (Objects.equals(info.getEncodingType(), "") || info.getEncodingType() == null) {
             info.setEncodingType(EncoderType.AAC.getDescription());
         }
 

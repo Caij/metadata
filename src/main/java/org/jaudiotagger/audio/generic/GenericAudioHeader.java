@@ -74,6 +74,7 @@ public class GenericAudioHeader implements AudioHeader {
      * @return The bitRate in Kbps.
      */
     public long getBitRateAsNumber() {
+        if (bitRate == null) return -1;
         return bitRate;
     }
 
@@ -84,6 +85,7 @@ public class GenericAudioHeader implements AudioHeader {
      * @return The number of channels. (2 for stereo, 1 for mono)
      */
     public int getChannelNumber() {
+        if (noOfChannels == null) return -1;
         return noOfChannels;
     }
 

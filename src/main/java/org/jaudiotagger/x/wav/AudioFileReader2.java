@@ -40,6 +40,9 @@ public abstract class AudioFileReader2 extends AudioFileReader {
         } catch (FileNotFoundException e) {
             logger.warning("Unable to read file: " + f + " " + e.getMessage());
             throw e;
+        } catch (Exception e) {
+            logger.warning("Unable to read file: " + f + " " + e.getMessage());
+            throw e;
         } finally {
             if (channel != null) channel.close();
         }
